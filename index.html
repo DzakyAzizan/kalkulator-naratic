@@ -10,90 +10,21 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-      body {
-        font-family: "Poppins", sans-serif;
-        background-color: #f0f8ff;
-        color: #333;
-      }
-      .header-title {
-        color: #005f99;
-        font-weight: 600;
-        margin-top: 30px;
-      }
-      .nav-btn {
-        border-radius: 20px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        margin: 5px;
-        padding: 8px 20px;
-      }
-      .nav-btn.active {
-        background-color: #005f99;
-        color: white;
-        border-color: #005f99;
-      }
-      .card-custom {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        background: white;
-        padding: 25px;
-        margin-bottom: 25px;
-      }
-      #loginScreen {
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #f0f8ff;
-      }
-      .login-box {
-        background: white;
-        padding: 40px 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        width: 100%;
-        max-width: 400px;
-      }
+      body { font-family: "Poppins", sans-serif; background-color: #f0f8ff; color: #333; }
+      .header-title { color: #005f99; font-weight: 600; margin-top: 30px; }
+      .nav-btn { border-radius: 20px; font-weight: 500; transition: all 0.3s ease; margin: 5px; padding: 8px 20px; }
+      .nav-btn.active { background-color: #005f99; color: white; border-color: #005f99; }
+      .card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); background: white; padding: 25px; margin-bottom: 25px; }
+      #loginScreen { height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #f0f8ff; }
+      .login-box { background: white; padding: 40px 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px; }
       @media screen and (max-width: 768px) {
-        table.responsive-table {
-          border: 0;
-        }
-        table.responsive-table thead {
-          display: none;
-        }
-        table.responsive-table tr {
-          display: block;
-          margin-bottom: 15px;
-          border: 1px solid #ddd;
-          border-radius: 10px;
-          background-color: #fff;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-        table.responsive-table td {
-          display: block;
-          text-align: right;
-          font-size: 14px;
-          border-bottom: 1px dotted #ccc;
-          position: relative;
-          padding-left: 45%;
-        }
-        table.responsive-table td:last-child {
-          border-bottom: 0;
-        }
-        table.responsive-table td::before {
-          content: attr(data-label);
-          position: absolute;
-          left: 10px;
-          width: 40%;
-          text-align: left;
-          font-weight: bold;
-          color: #555;
-        }
-        .action-buttons {
-          text-align: right;
-        }
+        table.responsive-table { border: 0; }
+        table.responsive-table thead { display: none; }
+        table.responsive-table tr { display: block; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; background-color: #fff; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); }
+        table.responsive-table td { display: block; text-align: right; font-size: 14px; border-bottom: 1px dotted #ccc; position: relative; padding-left: 45%; }
+        table.responsive-table td:last-child { border-bottom: 0; }
+        table.responsive-table td::before { content: attr(data-label); position: absolute; left: 10px; width: 40%; text-align: left; font-weight: bold; color: #555; }
+        .action-buttons { text-align: right; }
       }
     </style>
   </head>
@@ -141,12 +72,8 @@
                 <label class="form-label fw-bold">Merk</label>
                 <input list="daftarMerk" class="form-control" id="masterMerk" required placeholder="Pilih/Ketik..." />
                 <datalist id="daftarMerk">
-                  <option value="Amara"></option>
-                  <option value="Yamano"></option>
-                  <option value="Kandila"></option>
-                  <option value="Recent"></option>
-                  <option value="Sunsun"></option>
-                  <option value="Tanpa Merk"></option>
+                  <option value="Amara"></option><option value="Yamano"></option><option value="Kandila"></option>
+                  <option value="Recent"></option><option value="Sunsun"></option><option value="Tanpa Merk"></option>
                 </datalist>
               </div>
               <div class="col-md-2">
@@ -167,19 +94,10 @@
             <div class="table-responsive">
               <table class="table table-hover responsive-table">
                 <thead class="table-primary">
-                  <tr>
-                    <th>No</th>
-                    <th>Nama Barang</th>
-                    <th>Ukuran</th>
-                    <th>Merk</th>
-                    <th>Harga Satuan</th>
-                    <th class="text-center">Aksi</th>
-                  </tr>
+                  <tr><th>No</th><th>Nama Barang</th><th>Ukuran</th><th>Merk</th><th>Harga Satuan</th><th class="text-center">Aksi</th></tr>
                 </thead>
                 <tbody id="tabelMaster">
-                  <tr>
-                    <td colspan="6" class="text-center text-muted">Memuat data dari Supabase...</td>
-                  </tr>
+                  <tr><td colspan="6" class="text-center text-muted">Memuat data dari Supabase...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -212,15 +130,7 @@
             <div class="table-responsive">
               <table class="table table-hover responsive-table">
                 <thead class="table-success">
-                  <tr>
-                    <th>Nama Barang</th>
-                    <th>Ukuran</th>
-                    <th>Merk</th>
-                    <th>Harga/pcs</th>
-                    <th>Qty</th>
-                    <th>Subtotal</th>
-                    <th class="text-center">Aksi</th>
-                  </tr>
+                  <tr><th>Nama Barang</th><th>Ukuran</th><th>Merk</th><th>Harga/pcs</th><th>Qty</th><th>Subtotal</th><th class="text-center">Aksi</th></tr>
                 </thead>
                 <tbody id="tabelKalkulator"></tbody>
               </table>
@@ -236,9 +146,9 @@
     </div>
 
     <script>
-      const supabaseUrl = "https://hfgkxuslduofgrtfugke.supabase.co";
-      const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmZ2t4dXNsZHVvZmdydGZ1Z2tlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNTY3MTcsImV4cCI6MjEwMTczMjcxN30.pcLksc4bhA1rKJgsyFDAcZX4m_x5Gwxph1EaHY557VU";
-      const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+      const sbUrl = "https://hfgkxuslduofgrtfugke.supabase.co";
+      const sbKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmZ2t4dXNsZHVvZmdydGZ1Z2tlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNTY3MTcsImV4cCI6MjEwMTczMjcxN30.pcLksc4bhA1rKJgsyFDAcZX4m_x5Gwxph1EaHY557VU";
+      const db = window.supabase.createClient(sbUrl, sbKey);
 
       let dataMaster = [];
       let dataKalkulator = [];
@@ -247,13 +157,10 @@
         return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(angka);
       };
 
-      // LOGIN AMAN TANPA ERROR BASE64
       function cekPassword(e) {
         e.preventDefault();
         const inputPw = document.getElementById("passwordInput").value.trim();
         const errorMsg = document.getElementById("errorMsg");
-
-        // PIN kamu diset di sini dengan aman
         const pwRahasia = "naratic123";
 
         if (inputPw === pwRahasia) {
@@ -286,7 +193,7 @@
 
       async function tarikDataSupabase() {
         try {
-          const { data, error } = await supabase.from("katalog_barang").select("*").order("nama", { ascending: true });
+          const { data, error } = await db.from("katalog_barang").select("*").order("nama", { ascending: true });
           if (error) throw error;
           dataMaster = data;
           renderTabelMaster();
@@ -309,7 +216,7 @@
         const hargaBaru = parseInt(document.getElementById("masterHarga").value);
 
         try {
-          const { error } = await supabase.from("katalog_barang").insert([{ nama: namaBaru, ukuran: ukuranBaru, merk: merkBaru, harga: hargaBaru }]);
+          const { error } = await db.from("katalog_barang").insert([{ nama: namaBaru, ukuran: ukuranBaru, merk: merkBaru, harga: hargaBaru }]);
           if (error) throw error;
           document.getElementById("formMaster").reset();
           tarikDataSupabase();
@@ -323,7 +230,7 @@
       async function hapusDataMaster(id) {
         if (confirm("Yakin ingin menghapus barang ini dari database?")) {
           try {
-            const { error } = await supabase.from("katalog_barang").delete().eq("id", id);
+            const { error } = await db.from("katalog_barang").delete().eq("id", id);
             if (error) throw error;
             tarikDataSupabase();
           } catch (error) {
