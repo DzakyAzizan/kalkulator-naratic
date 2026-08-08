@@ -216,8 +216,7 @@
         const hargaBaru = parseInt(document.getElementById("masterHarga").value);
 
         try {
-          // Menyesuaikan dengan kolom Supabase Anda ("merek dagang")
-          const { error } = await db.from("katalog_barang").insert([{ nama: namaBaru, ukuran: ukuranBaru, "merek dagang": merkBaru, harga: hargaBaru }]);
+          const { error } = await db.from("katalog_barang").insert([{ nama: namaBaru, ukuran: ukuranBaru, merk: merkBaru, harga: hargaBaru }]);
           if (error) throw error;
           document.getElementById("formMaster").reset();
           tarikDataSupabase();
@@ -249,14 +248,12 @@
         }
         tbody.innerHTML = "";
         dataMaster.forEach((item, index) => {
-          // Mengambil data dari kolom "merek dagang"
-          const merkVal = item["merek dagang"] || item.merk || "-";
           tbody.innerHTML += `
             <tr>
               <td data-label="No">${index + 1}</td>
               <td data-label="Nama Barang">${item.nama}</td>
               <td data-label="Ukuran">${item.ukuran}</td>
-              <td data-label="Merk">${merkVal}</td>
+              <td data-label="Merk">${item.merk}</td>
               <td data-label="Harga">${formatRupiah(item.harga)}</td>
               <td data-label="Aksi" class="text-center action-buttons">
                 <button class="btn btn-sm btn-outline-danger" onclick="hapusDataMaster(${item.id})"><i class="fas fa-trash"></i></button>
@@ -276,8 +273,7 @@
         select.disabled = false;
         select.innerHTML = '<option value="">-- Pilih Barang --</option>';
         dataMaster.forEach((item) => {
-          const merkVal = item["merek dagang"] || item.merk || "-";
-          select.innerHTML += `<option value="${item.id}">${item.nama} - ${item.ukuran} (${merkVal}) : ${formatRupiah(item.harga)}</option>`;
+          select.innerHTML += `<option value="${item.id}">${item.nama} - ${item.ukuran} (${item.merk}) : ${formatRupiah(item.harga)}</option>`;
         });
       }
 
@@ -288,12 +284,10 @@
         if (!idBarang) return alert("Pilih barang dulu!");
 
         const barang = dataMaster.find((item) => item.id === idBarang);
-        // Standardisasi properti merk untuk kalkulator
-        const normalizedBarang = { ...barang, merk: barang["merek dagang"] || barang.merk };
         const cekSama = dataKalkulator.find((item) => item.id === idBarang);
 
         if (cekSama) cekSama.qty += qty;
-        else dataKalkulator.push({ ...normalizedBarang, qty });
+        else dataKalkulator.push({ ...barang, qty });
 
         document.getElementById("qtyKalkulator").value = 1;
         document.getElementById("pilihBarang").value = "";
