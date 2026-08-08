@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Bootstrap JS untuk Modal Pop-up -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
@@ -89,10 +88,18 @@
           </div>
 
           <div class="card-custom">
-            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3 flex-wrap gap-2">
               <h5 class="text-secondary fw-bold mb-0">Daftar Katalog Barang</h5>
+              
+              <!-- KOTAK PENCARIAN DI AREA YANG DIBULETIN -->
+              <div class="input-group" style="max-width: 300px;">
+                <span class="input-group-text bg-light"><i class="fas fa-search text-muted"></i></span>
+                <input type="text" class="form-control" id="inputCariTabel" placeholder="Cari nama/merk/ukuran..." onkeyup="filterTabelMaster()">
+              </div>
+
               <button class="btn btn-sm btn-outline-info" onclick="tarikDataSupabase()"><i class="fas fa-sync"></i> Refresh Data</button>
             </div>
+
             <div class="table-responsive">
               <table class="table table-hover responsive-table">
                 <thead class="table-primary">
@@ -146,7 +153,7 @@
       </div>
     </div>
 
-    <!-- MODAL / KOTAK NGAMBANG UNTUK UBAH & HAPUS BARANG -->
+    <!-- MODAL UBAH & HAPUS BARANG -->
     <div class="modal fade" id="modalUbah" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-top border-warning border-4 shadow">
@@ -240,7 +247,7 @@
           const { data, error } = await db.from("katalog_barang").select("*").order("nama", { ascending: true });
           if (error) throw error;
           dataMaster = data;
-          renderTabelMaster();
+          renderTabelMaster(dataMaster);
           updateDatalistBarang();
         } catch (error) {
           console.error("Gagal menarik data:", error.message);
@@ -263,6 +270,7 @@
           const { error } = await db.from("katalog_barang").insert([{ nama: namaBaru, ukuran: ukuranBaru, merk: merkBaru, harga: hargaBaru }]);
           if (error) throw error;
           document.getElementById("formMaster").reset();
+          document.getElementById("inputCariTabel").value = "";
           tarikDataSupabase();
         } catch (error) {
           alert("Gagal menyimpan: " + error.message);
@@ -271,7 +279,6 @@
         btn.innerHTML = aslinya;
       }
 
-      // Membuka Kotak Ngambang (Modal) untuk Ubah Data
       function bukaModalUbah(id) {
         const barang = dataMaster.find(item => item.id === id);
         if (!barang) return;
@@ -285,7 +292,6 @@
         modalInstance.show();
       }
 
-      // Menyimpan Perubahan dari Kotak Modal
       async function simpanPerubahanModal() {
         const id = document.getElementById("modalId").value;
         const nama = document.getElementById("modalNama").value;
@@ -298,6 +304,7 @@
           if (error) throw error;
 
           modalInstance.hide();
+          document.getElementById("inputCariTabel").value = "";
           tarikDataSupabase();
         } catch (error) {
           alert("Gagal mengubah data: " + error.message);
@@ -305,7 +312,6 @@
         }
       }
 
-      // Menghapus Barang langsung dari Kotak Modal
       async function hapusDariModal() {
         const id = document.getElementById("modalId").value;
         if (confirm("Yakin ingin menghapus barang ini dari database?")) {
@@ -314,6 +320,7 @@
             if (error) throw error;
 
             modalInstance.hide();
+            document.getElementById("inputCariTabel").value = "";
             tarikDataSupabase();
           } catch (error) {
             alert("Gagal menghapus data!");
@@ -322,14 +329,25 @@
         }
       }
 
-      function renderTabelMaster() {
+      // FUNGSI FILTER PENCARIAN TABEL
+      function filterTabelMaster() {
+        const keyword = document.getElementById("inputCariTabel").value.toLowerCase();
+        const hasilFilter = dataMaster.filter(item => {
+          return item.nama.toLowerCase().includes(keyword) || 
+                 item.ukuran.toLowerCase().includes(keyword) || 
+                 item.merk.toLowerCase().includes(keyword);
+        });
+        renderTabelMaster(hasilFilter);
+      }
+
+      function renderTabelMaster(dataArray) {
         const tbody = document.getElementById("tabelMaster");
-        if (dataMaster.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted" data-label="Status">Belum ada barang di katalog.</td></tr>`;
+        if (dataArray.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted" data-label="Status">Barang tidak ditemukan.</td></tr>`;
           return;
         }
         tbody.innerHTML = "";
-        dataMaster.forEach((item, index) => {
+        dataArray.forEach((item, index) => {
           tbody.innerHTML += `
             <tr>
               <td data-label="No">${index + 1}</td>
