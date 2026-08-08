@@ -107,13 +107,13 @@
         <!-- TAB 2: KALKULATOR -->
         <div id="tabHitung" style="display: none">
           <div class="card-custom border-top border-success border-4">
-            <h5 class="text-success fw-bold mb-4">Pilih Barang untuk Dihitung</h5>
+            <h5 class="text-success fw-bold mb-4">Cari & Pilih Barang untuk Dihitung</h5>
             <form id="formKalkulator" class="row g-3" onsubmit="tambahKeKalkulator(event)">
               <div class="col-md-7">
-                <label class="form-label fw-bold">Pilih Barang dari Database</label>
-                <select class="form-select" id="pilihBarang" required>
-                  <option value="">-- Sedang memuat data... --</option>
-                </select>
+                <label class="form-label fw-bold">Ketik Nama / Huruf Depan Barang</label>
+                <!-- KOTAK PENCARIAN PINTAR (AUTOCOMPLETE) -->
+                <input class="form-control" list="listDataBarang" id="inputCariBarang" placeholder="Ketik misal: L atau T..." required autocomplete="off">
+                <datalist id="listDataBarang"></datalist>
               </div>
               <div class="col-md-2">
                 <label class="form-label fw-bold">Jumlah (Qty)</label>
@@ -197,7 +197,7 @@
           if (error) throw error;
           dataMaster = data;
           renderTabelMaster();
-          updateDropdownBarang();
+          updateDatalistBarang();
         } catch (error) {
           console.error("Gagal menarik data:", error.message);
           document.getElementById("tabelMaster").innerHTML = `<tr><td colspan="6" class="text-center text-danger">Gagal memuat data.</td></tr>`;
@@ -263,34 +263,40 @@
         });
       }
 
-      function updateDropdownBarang() {
-        const select = document.getElementById("pilihBarang");
-        if (dataMaster.length === 0) {
-          select.innerHTML = '<option value="">-- Database Kosong --</option>';
-          select.disabled = true;
-          return;
-        }
-        select.disabled = false;
-        select.innerHTML = '<option value="">-- Pilih Barang --</option>';
+      function updateDatalistBarang() {
+        const datalist = document.getElementById("listDataBarang");
+        datalist.innerHTML = "";
         dataMaster.forEach((item) => {
-          select.innerHTML += `<option value="${item.id}">${item.nama} - ${item.ukuran} (${item.merk}) : ${formatRupiah(item.harga)}</option>`;
+          // Format teks yang muncul di saran pencarian pintar
+          const teksSaran = `${item.nama} - ${item.ukuran} (${item.merk}) : ${formatRupiah(item.harga)}`;
+          datalist.innerHTML += `<option value="${teksSaran}" data-id="${item.id}"></option>`;
         });
       }
 
       function tambahKeKalkulator(e) {
         e.preventDefault();
-        const idBarang = parseInt(document.getElementById("pilihBarang").value);
+        const inputVal = document.getElementById("inputCariBarang").value;
         const qty = parseInt(document.getElementById("qtyKalkulator").value);
-        if (!idBarang) return alert("Pilih barang dulu!");
+        
+        if (!inputVal) return alert("Pilih atau ketik barang dulu!");
 
-        const barang = dataMaster.find((item) => item.id === idBarang);
-        const cekSama = dataKalkulator.find((item) => item.id === idBarang);
+        // Cari barang yang cocok berdasarkan teks yang diketik/dipilih
+        const barang = dataMaster.find((item) => {
+          const formatTeks = `${item.nama} - ${item.ukuran} (${item.merk}) : ${formatRupiah(item.harga)}`;
+          return formatTeks === inputVal;
+        });
 
+        if (!barang) {
+          alert("Barang tidak ditemukan di database! Pastikan memilih dari daftar yang muncul.");
+          return;
+        }
+
+        const cekSama = dataKalkulator.find((item) => item.id === barang.id);
         if (cekSama) cekSama.qty += qty;
         else dataKalkulator.push({ ...barang, qty });
 
         document.getElementById("qtyKalkulator").value = 1;
-        document.getElementById("pilihBarang").value = "";
+        document.getElementById("inputCariBarang").value = "";
         renderTabelKalkulator();
       }
 
