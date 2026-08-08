@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Naratic Aquarium - Kalkulator Setup</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f0f8ff;
+        color: #333;
+      }
+      .header-title {
+        color: #005f99;
+        font-weight: 600;
+        margin-top: 30px;
+      }
+      .nav-btn {
+        border-radius: 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin: 5px;
+        padding: 8px 20px;
+      }
+      .nav-btn.active {
+        background-color: #005f99;
+        color: white;
+        border-color: #005f99;
+      }
+      .card-custom {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        background: white;
+        padding: 25px;
+        margin-bottom: 25px;
+      }
+      #loginScreen {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f0f8ff;
+      }
+      .login-box {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 100%;
+        max-width: 400px;
+      }
+      @media screen and (max-width: 768px) {
+        table.responsive-table {
+          border: 0;
+        }
+        table.responsive-table thead {
+          display: none;
+        }
+        table.responsive-table tr {
+          display: block;
+          margin-bottom: 15px;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          background-color: #fff;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        table.responsive-table td {
+          display: block;
+          text-align: right;
+          font-size: 14px;
+          border-bottom: 1px dotted #ccc;
+          position: relative;
+          padding-left: 45%;
+        }
+        table.responsive-table td:last-child {
+          border-bottom: 0;
+        }
+        table.responsive-table td::before {
+          content: attr(data-label);
+          position: absolute;
+          left: 10px;
+          width: 40%;
+          text-align: left;
+          font-weight: bold;
+          color: #555;
+        }
+        .action-buttons {
+          text-align: right;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HALAMAN LOGIN -->
+    <div id="loginScreen">
+      <div class="login-box border-top border-primary border-4">
+        <h3 class="text-primary fw-bold mb-2">🌊 Naratic</h3>
+        <p class="text-secondary mb-4">Masukkan PIN untuk mengakses Database</p>
+        <form onsubmit="cekPassword(event)">
+          <input type="password" class="form-control mb-3 text-center" id="passwordInput" placeholder="Masukkan PIN rahasia..." required />
+          <button type="submit" class="btn btn-primary w-100 fw-bold">Buka Aplikasi</button>
+          <p id="errorMsg" class="text-danger mt-2 mb-0" style="display: none; font-size: 14px">PIN Salah! Coba lagi.</p>
+        </form>
+      </div>
+    </div>
+
+    <!-- APLIKASI UTAMA -->
+    <div id="mainApp" style="display: none">
+      <div class="container mb-5">
+        <div class="text-center">
+          <h1 class="header-title">🌊 Naratic Aquarium 🌊</h1>
+          <h5 class="text-secondary mb-4">Database & Estimasi Harga Setup</h5>
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-center mb-4">
+          <button class="btn btn-outline-primary nav-btn active" id="btnMaster" onclick="pindahTab('master')"><i class="fas fa-database me-1"></i> 1. Data Perintilan</button>
+          <button class="btn btn-outline-success nav-btn" id="btnHitung" onclick="pindahTab('hitung')"><i class="fas fa-calculator me-1"></i> 2. Kalkulator Setup</button>
+        </div>
+
+        <!-- TAB 1: MASTER DATA -->
+        <div id="tabMaster">
+          <div class="card-custom border-top border-primary border-4">
+            <h5 class="text-primary fw-bold mb-4">Tambah Data Barang ke Supabase (Realtime)</h5>
+            <form id="formMaster" class="row g-3" onsubmit="tambahDataMaster(event)">
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Nama Barang</label>
+                <input type="text" class="form-control" id="masterNama" required placeholder="Contoh: Filter Gantung" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Ukuran</label>
+                <input type="text" class="form-control" id="masterUkuran" required placeholder="Contoh: L, 60cm, 1 Kg" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Merk</label>
+                <input list="daftarMerk" class="form-control" id="masterMerk" required placeholder="Pilih/Ketik..." />
+                <datalist id="daftarMerk">
+                  <option value="Amara"></option>
+                  <option value="Yamano"></option>
+                  <option value="Kandila"></option>
+                  <option value="Recent"></option>
+                  <option value="Sunsun"></option>
+                  <option value="Tanpa Merk"></option>
+                </datalist>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label fw-bold">Harga (Rp)</label>
+                <input type="number" class="form-control" id="masterHarga" min="0" required placeholder="35000" />
+              </div>
+              <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100 fw-bold" id="btnSimpan" title="Simpan ke Database"><i class="fas fa-save"></i></button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card-custom">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+              <h5 class="text-secondary fw-bold mb-0">Daftar Katalog Barang</h5>
+              <button class="btn btn-sm btn-outline-info" onclick="tarikDataSupabase()"><i class="fas fa-sync"></i> Refresh Data</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover responsive-table">
+                <thead class="table-primary">
+                  <tr>
+                    <th>No</th>
+                    <th>Nama Barang</th>
+                    <th>Ukuran</th>
+                    <th>Merk</th>
+                    <th>Harga Satuan</th>
+                    <th class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tabelMaster">
+                  <tr>
+                    <td colspan="6" class="text-center text-muted">Memuat data dari Supabase...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: KALKULATOR -->
+        <div id="tabHitung" style="display: none">
+          <div class="card-custom border-top border-success border-4">
+            <h5 class="text-success fw-bold mb-4">Pilih Barang untuk Dihitung</h5>
+            <form id="formKalkulator" class="row g-3" onsubmit="tambahKeKalkulator(event)">
+              <div class="col-md-7">
+                <label class="form-label fw-bold">Pilih Barang dari Database</label>
+                <select class="form-select" id="pilihBarang" required>
+                  <option value="">-- Sedang memuat data... --</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label fw-bold">Jumlah (Qty)</label>
+                <input type="number" class="form-control" id="qtyKalkulator" min="1" value="1" required />
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-success w-100 fw-bold"><i class="fas fa-plus me-2"></i>Hitung</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card-custom">
+            <h5 class="text-secondary fw-bold border-bottom pb-2 mb-3">Rincian Setup</h5>
+            <div class="table-responsive">
+              <table class="table table-hover responsive-table">
+                <thead class="table-success">
+                  <tr>
+                    <th>Nama Barang</th>
+                    <th>Ukuran</th>
+                    <th>Merk</th>
+                    <th>Harga/pcs</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                    <th class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tabelKalkulator"></tbody>
+              </table>
+            </div>
+            <hr class="my-4" />
+            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded border">
+              <h3 class="mb-0 text-secondary">Total Biaya Setup:</h3>
+              <h2 class="mb-0 text-success fw-bold" id="totalHargaSetup">Rp 0</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const supabaseUrl = "https://hfgkxuslduofgrtfugke.supabase.co";
+      const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmZ2t4dXNsZHVvZmdydGZ1Z2tlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNTY3MTcsImV4cCI6MjEwMTczMjcxN30.pcLksc4bhA1rKJgsyFDAcZX4m_x5Gwxph1EaHY557VU";
+      const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+      let dataMaster = [];
+      let dataKalkulator = [];
+
+      const formatRupiah = (angka) => {
+        return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(angka);
+      };
+
+      // LOGIN AMAN TANPA ERROR BASE64
+      function cekPassword(e) {
+        e.preventDefault();
+        const inputPw = document.getElementById("passwordInput").value.trim();
+        const errorMsg = document.getElementById("errorMsg");
+
+        // PIN kamu diset di sini dengan aman
+        const pwRahasia = "naratic123";
+
+        if (inputPw === pwRahasia) {
+          document.getElementById("loginScreen").style.display = "none";
+          document.getElementById("mainApp").style.display = "block";
+          tarikDataSupabase();
+        } else {
+          errorMsg.style.display = "block";
+        }
+      }
+
+      function pindahTab(tab) {
+        document.getElementById("btnMaster").classList.remove("active", "btn-primary");
+        document.getElementById("btnMaster").classList.add("btn-outline-primary");
+        document.getElementById("btnHitung").classList.remove("active", "btn-success");
+        document.getElementById("btnHitung").classList.add("btn-outline-success");
+
+        if (tab === "master") {
+          document.getElementById("tabMaster").style.display = "block";
+          document.getElementById("tabHitung").style.display = "none";
+          document.getElementById("btnMaster").classList.remove("btn-outline-primary");
+          document.getElementById("btnMaster").classList.add("active", "btn-primary");
+        } else {
+          document.getElementById("tabMaster").style.display = "none";
+          document.getElementById("tabHitung").style.display = "block";
+          document.getElementById("btnHitung").classList.remove("btn-outline-success");
+          document.getElementById("btnHitung").classList.add("active", "btn-success");
+        }
+      }
+
+      async function tarikDataSupabase() {
+        try {
+          const { data, error } = await supabase.from("katalog_barang").select("*").order("nama", { ascending: true });
+          if (error) throw error;
+          dataMaster = data;
+          renderTabelMaster();
+          updateDropdownBarang();
+        } catch (error) {
+          console.error("Gagal menarik data:", error.message);
+          document.getElementById("tabelMaster").innerHTML = `<tr><td colspan="6" class="text-center text-danger">Gagal memuat data.</td></tr>`;
+        }
+      }
+
+      async function tambahDataMaster(e) {
+        e.preventDefault();
+        const btn = document.getElementById("btnSimpan");
+        const aslinya = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        const namaBaru = document.getElementById("masterNama").value;
+        const ukuranBaru = document.getElementById("masterUkuran").value;
+        const merkBaru = document.getElementById("masterMerk").value;
+        const hargaBaru = parseInt(document.getElementById("masterHarga").value);
+
+        try {
+          const { error } = await supabase.from("katalog_barang").insert([{ nama: namaBaru, ukuran: ukuranBaru, merk: merkBaru, harga: hargaBaru }]);
+          if (error) throw error;
+          document.getElementById("formMaster").reset();
+          tarikDataSupabase();
+        } catch (error) {
+          alert("Gagal menyimpan!");
+          console.error(error);
+        }
+        btn.innerHTML = aslinya;
+      }
+
+      async function hapusDataMaster(id) {
+        if (confirm("Yakin ingin menghapus barang ini dari database?")) {
+          try {
+            const { error } = await supabase.from("katalog_barang").delete().eq("id", id);
+            if (error) throw error;
+            tarikDataSupabase();
+          } catch (error) {
+            alert("Gagal menghapus data!");
+            console.error(error);
+          }
+        }
+      }
+
+      function renderTabelMaster() {
+        const tbody = document.getElementById("tabelMaster");
+        if (dataMaster.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted" data-label="Status">Belum ada barang di katalog.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = "";
+        dataMaster.forEach((item, index) => {
+          tbody.innerHTML += `
+            <tr>
+              <td data-label="No">${index + 1}</td>
+              <td data-label="Nama Barang">${item.nama}</td>
+              <td data-label="Ukuran">${item.ukuran}</td>
+              <td data-label="Merk">${item.merk}</td>
+              <td data-label="Harga">${formatRupiah(item.harga)}</td>
+              <td data-label="Aksi" class="text-center action-buttons">
+                <button class="btn btn-sm btn-outline-danger" onclick="hapusDataMaster(${item.id})"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      function updateDropdownBarang() {
+        const select = document.getElementById("pilihBarang");
+        if (dataMaster.length === 0) {
+          select.innerHTML = '<option value="">-- Database Kosong --</option>';
+          select.disabled = true;
+          return;
+        }
+        select.disabled = false;
+        select.innerHTML = '<option value="">-- Pilih Barang --</option>';
+        dataMaster.forEach((item) => {
+          select.innerHTML += `<option value="${item.id}">${item.nama} - ${item.ukuran} (${item.merk}) : ${formatRupiah(item.harga)}</option>`;
+        });
+      }
+
+      function tambahKeKalkulator(e) {
+        e.preventDefault();
+        const idBarang = parseInt(document.getElementById("pilihBarang").value);
+        const qty = parseInt(document.getElementById("qtyKalkulator").value);
+        if (!idBarang) return alert("Pilih barang dulu!");
+
+        const barang = dataMaster.find((item) => item.id === idBarang);
+        const cekSama = dataKalkulator.find((item) => item.id === idBarang);
+
+        if (cekSama) cekSama.qty += qty;
+        else dataKalkulator.push({ ...barang, qty });
+
+        document.getElementById("qtyKalkulator").value = 1;
+        document.getElementById("pilihBarang").value = "";
+        renderTabelKalkulator();
+      }
+
+      function hapusDariKalkulator(id) {
+        dataKalkulator = dataKalkulator.filter((item) => item.id !== id);
+        renderTabelKalkulator();
+      }
+
+      function renderTabelKalkulator() {
+        const tbody = document.getElementById("tabelKalkulator");
+        let total = 0;
+        if (dataKalkulator.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted" data-label="Status">Belum ada barang yang dihitung.</td></tr>`;
+          document.getElementById("totalHargaSetup").innerText = "Rp 0";
+          return;
+        }
+        tbody.innerHTML = "";
+        dataKalkulator.forEach((item) => {
+          const subtotal = item.harga * item.qty;
+          total += subtotal;
+          tbody.innerHTML += `
+            <tr>
+              <td data-label="Nama Barang">${item.nama}</td>
+              <td data-label="Ukuran">${item.ukuran}</td>
+              <td data-label="Merk">${item.merk}</td>
+              <td data-label="Harga/pcs">${formatRupiah(item.harga)}</td>
+              <td data-label="Qty">${item.qty}</td>
+              <td data-label="Subtotal" class="fw-bold text-success">${formatRupiah(subtotal)}</td>
+              <td data-label="Aksi" class="text-center action-buttons">
+                <button class="btn btn-sm btn-danger" onclick="hapusDariKalkulator(${item.id})"><i class="fas fa-times"></i> Hapus</button>
+              </td>
+            </tr>
+          `;
+        });
+        document.getElementById("totalHargaSetup").innerText = formatRupiah(total);
+      }
+    </script>
+  </body>
+</html>
